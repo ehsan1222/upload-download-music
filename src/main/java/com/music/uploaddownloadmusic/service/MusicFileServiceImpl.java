@@ -5,13 +5,10 @@ import com.music.uploaddownloadmusic.repository.MusicFileRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.io.FileNotFoundException;
 import java.util.List;
 import java.util.Optional;
 
 @Service
-@Transactional
 public class MusicFileServiceImpl implements MusicFileService {
 
     @Autowired
@@ -19,6 +16,7 @@ public class MusicFileServiceImpl implements MusicFileService {
 
 
     @Override
+    @Transactional
     public MusicFile saveMusicFile(MusicFile musicFile) {
         return musicFileRepository.save(musicFile);
     }
@@ -34,11 +32,13 @@ public class MusicFileServiceImpl implements MusicFileService {
     }
 
     @Override
+    @Transactional
     public MusicFile updateMusicFile(MusicFile musicFile) {
         return musicFileRepository.save(musicFile);
     }
 
     @Override
+    @Transactional
     public void deleteMusicFile(Long musicId) {
         musicFileRepository.deleteById(musicId);
     }
