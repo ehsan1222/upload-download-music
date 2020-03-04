@@ -13,8 +13,9 @@ public interface MusicFileService {
 
     Optional<MusicFile> getMusicFile(Long musicId);
 
+    List<MusicFile> getSearchedMusicFilesByFileName(String fileName);
+
     MusicFile updateMusicFile(MusicFile musicFile);
 
     void deleteMusicFile(Long musicId);
-
 }

@@ -33,6 +33,12 @@ public class MusicFileServiceImpl implements MusicFileService {
 
     @Override
     @Transactional
+    public List<MusicFile> getSearchedMusicFilesByFileName(String fileName) {
+        return musicFileRepository.findByFileNameContaining(fileName);
+    }
+
+    @Override
+    @Transactional
     public MusicFile updateMusicFile(MusicFile musicFile) {
         return musicFileRepository.save(musicFile);
     }
