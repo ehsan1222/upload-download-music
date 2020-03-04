@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/musics")
@@ -43,7 +44,11 @@ public class MusicFileController {
 
     @GetMapping("/{musicId}")
     public ResponseEntity<MusicFile> getMusicFile(@PathVariable("musicId") Long musicId) {
-        return null;
+        Optional<MusicFile> musicFile = musicFileService.getMusicFile(musicId);
+        if (musicFile.isPresent()) {
+            return new ResponseEntity<>(musicFile.get(), HttpStatus.OK);
+        }
+        throw new MusicFileNotFoundException("musicId is NOT exists.");
     }
 
     @GetMapping("/search")
