@@ -52,8 +52,18 @@ public class MusicFileController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<FirstPageMusicResponse>> getSearchedMusicFile(@RequestParam("musicName") String musicName) {
-        return null;
+    public ResponseEntity<List<FirstPageMusicResponse>> getSearchedMusicFile(@RequestParam("fileName") String fileName) {
+        List<MusicFile> musicFiles = musicFileService.getSearchedMusicFilesByFileName(fileName);
+        if (musicFiles == null) {
+            throw new MusicFileNotFoundException("This fileName is NOT exist.");
+        }
+        List<FirstPageMusicResponse> musicResponses = new ArrayList<>();
+        for (MusicFile musicFile: musicFiles) {
+            FirstPageMusicResponse firstPageMusicResponse = new FirstPageMusicResponse
+                    (musicFile.getId(), musicFile.getFileName(), musicFile.getMusicFilePicture());
+            musicResponses.add(firstPageMusicResponse);
+        }
+        return new ResponseEntity<>(musicResponses, HttpStatus.OK);
     }
 
     @PutMapping("/{musicId}")
