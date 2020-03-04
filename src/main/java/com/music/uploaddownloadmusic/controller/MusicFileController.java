@@ -48,7 +48,7 @@ public class MusicFileController {
         if (musicFile.isPresent()) {
             return new ResponseEntity<>(musicFile.get(), HttpStatus.OK);
         }
-        throw new MusicFileNotFoundException("musicId is NOT exists.");
+        throw new MusicFileNotFoundException("musicId is NOT exist.");
     }
 
     @GetMapping("/search")
@@ -58,7 +58,16 @@ public class MusicFileController {
 
     @PutMapping("/{musicId}")
     public ResponseEntity<MusicFile> updateMusicFile(@PathVariable("musicId") Long musicId, @RequestBody MusicFile musicFile) {
-        return null;
+        Optional<MusicFile> musicFileOptional = musicFileService.getMusicFile(musicId);
+        if (musicFileOptional.isPresent()) {
+            MusicFile resMusicFile = musicFileOptional.get();
+            resMusicFile.setFileName(musicFile.getFileName());
+            resMusicFile.setFileType(musicFile.getFileType());
+            resMusicFile.setMusicFile(musicFile.getMusicFile());
+            resMusicFile.setMusicFilePicture(musicFile.getMusicFilePicture());
+            return new ResponseEntity<>(resMusicFile, HttpStatus.OK);
+        }
+        throw new MusicFileNotFoundException("musicId is NOT exist.");
     }
 
     @DeleteMapping("/{musicId}")
