@@ -24,6 +24,12 @@ public class MusicFileController {
         this.musicFileService = musicFileService;
     }
 
+    @PostMapping("/")
+    public ResponseEntity<?> addMusicFile(@RequestBody MusicFile musicFile) {
+        musicFileService.saveMusicFile(musicFile);
+        return new ResponseEntity<>(HttpStatus.CREATED);
+    }
+
     @GetMapping("/")
     public ResponseEntity<List<FirstPageMusicResponse>> getAllMusicsWithoutAudioFiles() {
         // Get all music Records
