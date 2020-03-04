@@ -3,14 +3,15 @@ package com.music.uploaddownloadmusic.service;
 import com.music.uploaddownloadmusic.model.MusicFile;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface MusicFileService {
 
-    void saveMusicFile(MusicFile musicFile);
+    MusicFile saveMusicFile(MusicFile musicFile);
 
     List<MusicFile> getAllMusics();
 
-    MusicFile getMusicFile(Long musicId);
+    Optional<MusicFile> getMusicFile(Long musicId);
 
     MusicFile updateMusicFile(MusicFile musicFile);
 
