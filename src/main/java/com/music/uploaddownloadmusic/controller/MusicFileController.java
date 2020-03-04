@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -57,8 +56,8 @@ public class MusicFileController {
         throw new MusicFileNotFoundException("This musicId is NOT exist.");
     }
 
-    @GetMapping("/search")
-    public ResponseEntity<List<FirstPageMusicResponse>> getSearchedMusicFile(@RequestParam("fileName") String fileName) {
+    @GetMapping("/search/{fileName}")
+    public ResponseEntity<List<FirstPageMusicResponse>> getSearchedMusicFile(@PathVariable("fileName") String fileName) {
         List<MusicFile> musicFiles = musicFileService.getSearchedMusicFilesByFileName(fileName);
         if (musicFiles == null) {
             throw new MusicFileNotFoundException("This fileName is NOT exist.");
