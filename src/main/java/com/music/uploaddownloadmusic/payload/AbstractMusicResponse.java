@@ -10,7 +10,7 @@ import org.springframework.core.io.ByteArrayResource;
 @AllArgsConstructor
 @Getter
 @Setter
-public class FirstPageMusicResponse {
+public class AbstractMusicResponse {
 
     private Long id;
     private String fileName;
