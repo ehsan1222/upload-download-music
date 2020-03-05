@@ -9,6 +9,7 @@ import com.music.uploaddownloadmusic.payload.RequestUploadMusic;
 import com.music.uploaddownloadmusic.service.MusicFileService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -92,6 +93,21 @@ public class MusicFileController {
             AbstractMusicResponse abstractMusicResponse = new AbstractMusicResponse
                     (musicFile.getId(), musicFile.getFileName(), new ByteArrayResource(musicFile.getMusicFilePicture()));
             return new ResponseEntity<>(abstractMusicResponse, HttpStatus.OK);
+        }
+        throw new MusicFileNotFoundException("This musicId is NOT exist.");
+    }
+
+    @GetMapping("/{musicId}/download")
+    public ResponseEntity<Resource> getMusicAudioFile(@PathVariable("musicId") Long musicId) {
+        if (musicId == null) {
+            throw new ParameterNotFoundException("MusicId Not Found");
+        }
+        // Get Music from DB
+        Optional<MusicFile> musicFileOptional = musicFileService.getMusicFile(musicId);
+        // Check musicId exists in DB
+        if (musicFileOptional.isPresent()) {
+            MusicFile musicFile = musicFileOptional.get();
+            return new ResponseEntity<>(new ByteArrayResource(musicFile.getMusicFile()), HttpStatus.OK);
         }
         throw new MusicFileNotFoundException("This musicId is NOT exist.");
     }
