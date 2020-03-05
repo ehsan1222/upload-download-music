@@ -4,7 +4,7 @@ import com.music.uploaddownloadmusic.exception.MusicFileNotFoundException;
 import com.music.uploaddownloadmusic.exception.MusicFileStorageException;
 import com.music.uploaddownloadmusic.exception.ParameterNotFoundException;
 import com.music.uploaddownloadmusic.model.MusicFile;
-import com.music.uploaddownloadmusic.payload.FirstPageMusicResponse;
+import com.music.uploaddownloadmusic.payload.AbstractMusicResponse;
 import com.music.uploaddownloadmusic.payload.RequestUploadMusic;
 import com.music.uploaddownloadmusic.service.MusicFileService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,7 +61,7 @@ public class MusicFileController {
     }
 
     @GetMapping("/")
-    public ResponseEntity<List<FirstPageMusicResponse>> getAllMusicsWithoutAudioFiles() {
+    public ResponseEntity<List<AbstractMusicResponse>> getAllMusicsWithoutAudioFiles() {
         // Get all music Records
         List<MusicFile> allMusics = musicFileService.getAllMusics();
 
@@ -69,35 +69,44 @@ public class MusicFileController {
         if (allMusics == null) {
             throw new MusicFileNotFoundException("Music File NOT Found!");
         }
-        List<FirstPageMusicResponse> firstPageMusicResponses = new ArrayList<>();
+        List<AbstractMusicResponse> abstractMusicRespons = new ArrayList<>();
         for (MusicFile musicFile : allMusics) {
-            FirstPageMusicResponse firstPageMusicResponse = new FirstPageMusicResponse
+            AbstractMusicResponse abstractMusicResponse = new AbstractMusicResponse
                     (musicFile.getId(), musicFile.getFileName(), new ByteArrayResource(musicFile.getMusicFilePicture()));
-            firstPageMusicResponses.add(firstPageMusicResponse);
+            abstractMusicRespons.add(abstractMusicResponse);
         }
-        return new ResponseEntity<>(firstPageMusicResponses, HttpStatus.OK);
+        return new ResponseEntity<>(abstractMusicRespons, HttpStatus.OK);
     }
 
     @GetMapping("/{musicId}")
-    public ResponseEntity<MusicFile> getMusicFile(@PathVariable("musicId") Long musicId) {
+    public ResponseEntity<AbstractMusicResponse> getMusicFile(@PathVariable("musicId") Long musicId) {
+        if (musicId == null) {
+            throw new ParameterNotFoundException("MusicId Not Found");
+        }
+        // Get Music from DB
         Optional<MusicFile> musicFileOptional = musicFileService.getMusicFile(musicId);
+        // Check musicId exists in DB
         if (musicFileOptional.isPresent()) {
-            return new ResponseEntity<>(musicFileOptional.get(), HttpStatus.OK);
+            MusicFile musicFile = musicFileOptional.get();
+            // Set response values
+            AbstractMusicResponse abstractMusicResponse = new AbstractMusicResponse
+                    (musicFile.getId(), musicFile.getFileName(), new ByteArrayResource(musicFile.getMusicFilePicture()));
+            return new ResponseEntity<>(abstractMusicResponse, HttpStatus.OK);
         }
         throw new MusicFileNotFoundException("This musicId is NOT exist.");
     }
 
     @GetMapping("/search/{fileName}")
-    public ResponseEntity<List<FirstPageMusicResponse>> getSearchedMusicFile(@PathVariable("fileName") String fileName) {
+    public ResponseEntity<List<AbstractMusicResponse>> getSearchedMusicFile(@PathVariable("fileName") String fileName) {
         List<MusicFile> musicFiles = musicFileService.getSearchedMusicFilesByFileName(fileName);
         if (musicFiles == null) {
             throw new MusicFileNotFoundException("This fileName is NOT exist.");
         }
-        List<FirstPageMusicResponse> musicResponses = new ArrayList<>();
+        List<AbstractMusicResponse> musicResponses = new ArrayList<>();
         for (MusicFile musicFile : musicFiles) {
-            FirstPageMusicResponse firstPageMusicResponse = new FirstPageMusicResponse
+            AbstractMusicResponse abstractMusicResponse = new AbstractMusicResponse
                     (musicFile.getId(), musicFile.getFileName(), new ByteArrayResource(musicFile.getMusicFilePicture()));
-            musicResponses.add(firstPageMusicResponse);
+            musicResponses.add(abstractMusicResponse);
         }
         return new ResponseEntity<>(musicResponses, HttpStatus.OK);
     }
