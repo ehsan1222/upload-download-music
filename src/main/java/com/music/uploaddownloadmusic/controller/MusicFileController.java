@@ -1,15 +1,22 @@
 package com.music.uploaddownloadmusic.controller;
 
 import com.music.uploaddownloadmusic.exception.MusicFileNotFoundException;
+import com.music.uploaddownloadmusic.exception.MusicFileStorageException;
+import com.music.uploaddownloadmusic.exception.ParameterNotFoundException;
 import com.music.uploaddownloadmusic.model.MusicFile;
 import com.music.uploaddownloadmusic.payload.FirstPageMusicResponse;
+import com.music.uploaddownloadmusic.payload.RequestUploadMusic;
 import com.music.uploaddownloadmusic.service.MusicFileService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @RestController
@@ -24,9 +31,33 @@ public class MusicFileController {
     }
 
     @PostMapping("/")
-    public ResponseEntity<?> addMusicFile(@RequestBody MusicFile musicFile) {
-        musicFileService.saveMusicFile(musicFile);
-        return new ResponseEntity<>(HttpStatus.CREATED);
+    public ResponseEntity<?> addMusicFile(@RequestBody RequestUploadMusic requestUploadMusic) {
+        try {
+            if (requestUploadMusic.getAudioFile() == null) {
+                throw new ParameterNotFoundException("AudioFile Not Found");
+            }
+            if (requestUploadMusic.getPictureFile() == null) {
+                throw new ParameterNotFoundException("PictureFile Not Found");
+            }
+            if (requestUploadMusic.getFileName() == null || requestUploadMusic.getFileName().trim().equals("")) {
+                throw new ParameterNotFoundException("FileName Not Found");
+            }
+            // get file name
+            String fileName = requestUploadMusic.getFileName();
+            // get file extension
+            String fileType = Objects.requireNonNull(requestUploadMusic.getAudioFile().getOriginalFilename()).
+                    substring(requestUploadMusic.getAudioFile().getOriginalFilename().lastIndexOf(".") + 1);
+            // Set requested parameter to Entity Class
+            MusicFile musicFile = new MusicFile(fileName,
+                    fileType,
+                    requestUploadMusic.getAudioFile().getBytes(),
+                    requestUploadMusic.getPictureFile().getBytes());
+            // Save New Music in DB
+            musicFileService.saveMusicFile(musicFile);
+            return new ResponseEntity<>(HttpStatus.CREATED);
+        } catch (IOException e) {
+            throw new MusicFileStorageException("an error occurred");
+        }
     }
 
     @GetMapping("/")
@@ -41,7 +72,7 @@ public class MusicFileController {
         List<FirstPageMusicResponse> firstPageMusicResponses = new ArrayList<>();
         for (MusicFile musicFile : allMusics) {
             FirstPageMusicResponse firstPageMusicResponse = new FirstPageMusicResponse
-                    (musicFile.getId(), musicFile.getFileName(), musicFile.getMusicFilePicture());
+                    (musicFile.getId(), musicFile.getFileName(), new ByteArrayResource(musicFile.getMusicFilePicture()));
             firstPageMusicResponses.add(firstPageMusicResponse);
         }
         return new ResponseEntity<>(firstPageMusicResponses, HttpStatus.OK);
@@ -63,9 +94,9 @@ public class MusicFileController {
             throw new MusicFileNotFoundException("This fileName is NOT exist.");
         }
         List<FirstPageMusicResponse> musicResponses = new ArrayList<>();
-        for (MusicFile musicFile: musicFiles) {
+        for (MusicFile musicFile : musicFiles) {
             FirstPageMusicResponse firstPageMusicResponse = new FirstPageMusicResponse
-                    (musicFile.getId(), musicFile.getFileName(), musicFile.getMusicFilePicture());
+                    (musicFile.getId(), musicFile.getFileName(), new ByteArrayResource(musicFile.getMusicFilePicture()));
             musicResponses.add(firstPageMusicResponse);
         }
         return new ResponseEntity<>(musicResponses, HttpStatus.OK);
