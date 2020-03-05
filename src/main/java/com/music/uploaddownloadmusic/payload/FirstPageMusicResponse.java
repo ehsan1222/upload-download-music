@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.core.io.ByteArrayResource;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -13,6 +14,6 @@ public class FirstPageMusicResponse {
 
     private Long id;
     private String fileName;
-    private byte[] musicFilePicture;
+    private ByteArrayResource musicPictureResource;
 
 }
