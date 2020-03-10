@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -97,7 +98,7 @@ public class MusicFileController {
         throw new MusicFileNotFoundException("This musicId is NOT exist.");
     }
 
-    @GetMapping("/{musicId}/download")
+    @GetMapping("/{musicId:.+}/download")
     public ResponseEntity<Resource> getMusicAudioFile(@PathVariable("musicId") Long musicId) {
         if (musicId == null) {
             throw new ParameterNotFoundException("MusicId Not Found");
@@ -107,7 +108,10 @@ public class MusicFileController {
         // Check musicId exists in DB
         if (musicFileOptional.isPresent()) {
             MusicFile musicFile = musicFileOptional.get();
-            return new ResponseEntity<>(new ByteArrayResource(musicFile.getMusicFile()), HttpStatus.OK);
+            return ResponseEntity.ok()
+                    .contentType(MediaType.parseMediaType(musicFile.getFileType()))
+                    .body(new ByteArrayResource(musicFile.getMusicFile()));
+
         }
         throw new MusicFileNotFoundException("This musicId is NOT exist.");
     }
